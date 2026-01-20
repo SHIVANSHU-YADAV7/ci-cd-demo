@@ -11,10 +11,19 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo "Build started..."
-                sh 'ls -la'
+                sh 'docker build -t cicd-app .'
+            }
+        }
+
+        stage('Deploy Container') {
+            steps {
+                sh '''
+                docker stop cicd-container || true
+                docker rm cicd-container || true
+                docker run -d -p 8080:80 --name cicd-container cicd-app
+                '''
             }
         }
     }
